@@ -1,0 +1,19 @@
+menuconfig ARCH_HELIOSX
+	bool "Marvell Ltd. HELIOS X" if ARCH_MULTI_V7
+	select ARCH_REQUIRE_GPIOLIB
+	select ARCH_SUPPORTS_BIG_ENDIAN
+	select ARM_AMBA
+	select ARM_GIC
+	select ARM_GLOBAL_TIMER
+	select ARM_TIMER_SP804
+	select HAVE_ARM_SCU if SMP
+	select HAVE_ARM_TWD if SMP
+	select HAVE_PATA_PLATFORM
+	select ICST
+	select NO_IOPORT_MAP
+	select POWER_RESET
+	select POWER_SUPPLY
+	help
+	  I cannot help you man, even I do not know how to port to HeliosX.
+
+
