@@ -555,6 +555,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += mt6589-aquaris5.dtb \
 	mt6592-evb.dtb \
 	mt8127-moose.dtb \
 	mt8135-evbp1.dtb
+dtb-$(CONFIG_ARCH_HELIOSX) += heliosx.dtb
 
 endif
 

@@ -1,0 +1,9 @@
+/dts-v1/;
+/include/ "skeleton.dtsi"
+
+/ {
+	compatible = "heliosx";
+	model = "heliosx rev 1";
+};
+
+
