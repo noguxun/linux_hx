@@ -1,11 +1,12 @@
 menuconfig ARCH_HELIOSX
 	bool "Marvell Ltd. HELIOS X" if ARCH_MULTI_V7
-	select ARCH_SUPPORTS_BIG_ENDIAN
-	select ARM_AMBA
-	select ARM_GIC
-	select ARM_GLOBAL_TIMER
-	select ICST
-	select NO_IOPORT_MAP
+	select CLKSRC_MMIO
+	select COMMON_CLK
+	select GENERIC_CLOCKEVENTS
+	select GENERIC_IRQ_CHIP
+	select IRQ_DOMAIN
+	select MULTI_IRQ_HANDLER
+	select SPARSE_IRQ
 	help
 	  I cannot help you man, even I do not know how to port to HeliosX.
 
