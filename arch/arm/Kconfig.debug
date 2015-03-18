@@ -1051,6 +1051,12 @@ choice
 		  Note that the system will appear to hang during boot if there
 		  is nothing connected to read from the DCC.
 
+	config DEBUG_LL_UART_HELIOSX
+		bool "low-level debugging via heliosx Uart"
+		help
+		  contact guxun@marvell.com
+
+
 	config DEBUG_SEMIHOSTING
 		bool "Kernel low-level debug output via semihosting I/O"
 		help
@@ -1106,6 +1112,11 @@ choice
 		  This option is preferred over the platform specific
 		  options; the platform specific options are deprecated
 		  and will be soon removed.
+
+	config DEBUG_LL_UART_HELIOSX
+		bool "Kernel low-level debugging via heliosX UART"
+		help
+		  Say Y here if you wish the debug print routes to direct
 
 endchoice
 
@@ -1169,6 +1180,7 @@ config DEBUG_LL_INCLUDE
 	default "debug/clps711x.S" if DEBUG_CLPS711X_UART1 || DEBUG_CLPS711X_UART2
 	default "debug/meson.S" if DEBUG_MESON_UARTAO
 	default "debug/pl01x.S" if DEBUG_LL_UART_PL01X || DEBUG_UART_PL01X
+	default "debug/heliosx.S" if DEBUG_LL_UART_HELIOSX
 	default "debug/exynos.S" if DEBUG_EXYNOS_UART
 	default "debug/efm32.S" if DEBUG_LL_UART_EFM32
 	default "debug/icedcc.S" if DEBUG_ICEDCC
@@ -1422,6 +1434,7 @@ config DEBUG_UART_8250_FLOW_CONTROL
 	depends on DEBUG_LL_UART_8250 || DEBUG_UART_8250
 	default y if ARCH_EBSA110 || FOOTBRIDGE || ARCH_GEMINI || ARCH_RPC
 
+
 config DEBUG_UNCOMPRESS
 	bool
 	depends on ARCH_MULTIPLATFORM || ARCH_MSM || PLAT_SAMSUNG
@@ -1436,7 +1449,7 @@ config DEBUG_UNCOMPRESS
 	  When this option is set, the selected DEBUG_LL output method
 	  will be re-used for normal decompressor output on multiplatform
 	  kernels.
-	  
+
 
 config UNCOMPRESS_INCLUDE
 	string
