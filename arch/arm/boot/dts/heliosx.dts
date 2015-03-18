@@ -4,6 +4,11 @@
 / {
 	compatible = "heliosx";
 	model = "heliosx rev 1";
+
+	memory@60000000 {
+		device_type = "memory";
+		reg = <0x08000000 0x08000000>;
+	};
 };
 
 
