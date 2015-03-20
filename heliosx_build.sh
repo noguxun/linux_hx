@@ -14,7 +14,7 @@ make heliosx_defconfig
 
 #make all -j9
 
-make -j9 LOADADDR=0x08000000 uImage dtbs
+make -j9 LOADADDR=0x09000000 uImage dtbs
 #make -j9 LOADADDR=0x40008000 uImage
 
 cp arch/arm/boot/uImage uImage.bin

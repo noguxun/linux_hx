@@ -96,6 +96,35 @@ static void putstr(const char *ptr)
 	flush();
 }
 
+static void putNum(uint32_t num)
+{
+	int cnt = 8;
+	putc('0');
+	putc('x');
+
+	while(cnt) {
+		uint32_t temp = ( num >> ((cnt -1) * 4) )  & 0x0000000F;
+
+		if (temp <= 9) {
+			putc('0' + temp);
+		}
+		else if (temp >= 10 && temp <= 15) {
+			putc('a' + (temp - 10));
+		}
+		else {
+			putc('z'); // should not happen
+		}
+
+
+		cnt--;
+	}
+
+	putc('\r');
+	putc('\n');
+
+	flush();
+}
+
 /*
  * gzip declarations
  */
@@ -159,9 +188,18 @@ decompress_kernel(unsigned long output_start, unsigned long free_mem_ptr_p,
 	arch_decomp_setup();
 
 	putstr("I am Linux and I am on the HeliosX\n");
+	putNum(0x01234567);
+	putNum((uint32_t)output_data);
+
+	/* currently cannot access the input_data yet */
+	//putNum((uint32_t)input_data);
+	//putNum((uint32_t)input_data_end);
+
 	putstr("Uncompressing Linux...");
 	ret = do_decompress(input_data, input_data_end - input_data,
 			    output_data, error);
+
+	putstr("Uncompress finished");
 	if (ret)
 		error("decompressor returned an error");
 	else

@@ -51,10 +51,13 @@ static void helx_serial_putc(const char c)
 		.endm
 
 		.macro	waituart,rd,rx
-1002:		ldr	\rd, [\rx, #0x0C]	@ STAT
+1001:		ldr	\rd, [\rx, #0x0C]	@ STAT
 		tst	\rd, #1 << 6		@ TXDC
-		beq	1002b			@ wait until transmit done
+		beq	1001b			@ wait until transmit done
 		.endm
 
 		.macro	busyuart,rd,rx
+1002:		ldr	\rd, [\rx, #0x0C]	@ STAT
+		tst	\rd, #1 << 6		@ TXDC
+		beq	1002b			@ wait until transmit done
 		.endm
