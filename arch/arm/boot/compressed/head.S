@@ -172,6 +172,8 @@ not_angel:
 		mov	r4, pc
 		and	r4, r4, #0xf8000000
 		add	r4, r4, #TEXT_OFFSET
+		/* xgu hack */
+		ldr	r4, =0x1a000000
 #else
 		ldr	r4, =zreladdr
 #endif
@@ -188,6 +190,9 @@ not_angel:
 		addcc	r0, r0, pc
 		cmpcc	r4, r0
 		orrcc	r4, r4, #1		@ remember we skipped cache_on
+		/*
+		 * xgu hack, cache mmu setting break things,
+		 * some memory cannot read write */
 		blcs	cache_on
 
 restart:	adr	r0, LC0
@@ -650,13 +655,47 @@ __armv3_mpu_cache_on:
 #define CB_BITS 0x0c
 #endif
 
+
+/*
 __setup_mmu:	sub	r3, r4, #16384		@ Page directory size
 		bic	r3, r3, #0xff		@ Align the pointer
 		bic	r3, r3, #0x3f00
+*/
+
+/* xgu hack, just set MMU to map all the RAM between 0x08000000 - 0x10000000
+ *   everything is hardcoded
+ *   r4 = 0x0a000000
+ *   r3 = 0x09f00000
+ */
+__setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
+		mov	r0, r3			@ table of index
+		mov	r9,  #0x18000000	@ start of RAM
+		mov 	r10, #0x20000000	@ end of RAM
+		mov	r1, #0x12		@ section mapping
+		orr	r1, r1, #3 << 10	@ AP=11
+		add	r2, r3, #16384		@ r2 points to end of the table
+1:		cmp	r1, r9			@ if virt > start of RAM
+		cmphs	r10, r1			@   && end of RAM > virt
+		bic	r1, r1, #0x1c		@ clear XN|U + C + B
+		orrlo	r1, r1, #0x10		@ Set XN|U for non-RAM
+
+		@orrhs	r1, r1, r6		@ set RAM section settings
+        	orrhs   r1,r1,#0b0000000001100     @ Set CB bits
+	        orrhs   r1,r1,#0b0000000000000     @ Set TEX bit 12
+
+
+		str	r1, [r0], #4		@ 1:1 mapping
+		add	r1, r1, #1048576
+		teq	r0, r2
+		bne	1b
+
+		mov 	pc, lr
+
 /*
  * Initialise the page tables, turning on the cacheable and bufferable
  * bits for the RAM area only.
  */
+ /*
 		mov	r0, r3
 		mov	r9, r0, lsr #18
 		mov	r9, r9, lsl #18		@ start of RAM
@@ -673,12 +712,15 @@ __setup_mmu:	sub	r3, r4, #16384		@ Page directory size
 		add	r1, r1, #1048576
 		teq	r0, r2
 		bne	1b
+*/
+
 /*
  * If ever we are running from Flash, then we surely want the cache
  * to be enabled also for our execution instance...  We map 2MB of it
  * so there is no map overlap problem for up to 1 MB compressed kernel.
  * If the execution is in RAM then we would only be duplicating the above.
  */
+ /*
 		orr	r1, r6, #0x04		@ ensure B is set for this
 		orr	r1, r1, #3 << 10
 		mov	r2, pc
@@ -689,6 +731,7 @@ __setup_mmu:	sub	r3, r4, #16384		@ Page directory size
 		add	r1, r1, #1048576
 		str	r1, [r0]
 		mov	pc, lr
+*/
 ENDPROC(__setup_mmu)
 
 @ Enable unaligned access on v6, to allow better code generation

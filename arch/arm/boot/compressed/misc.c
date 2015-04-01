@@ -146,6 +146,8 @@ void error(char *x)
 
 	putstr("\n\n");
 	putstr(x);
+
+	//xgu
 	putstr("\n\n -- System halted");
 
 	while(1);	/* Halt */
@@ -187,21 +189,42 @@ decompress_kernel(unsigned long output_start, unsigned long free_mem_ptr_p,
 
 	arch_decomp_setup();
 
+	/*xgu hack*/
+	//output_data = (unsigned char *)0x0a000000;
+
 	putstr("I am Linux and I am on the HeliosX\n");
-	putNum(0x01234567);
+
+	putNum((uint32_t)input_data);
+	putNum((uint32_t)input_data_end);
 	putNum((uint32_t)output_data);
+
+	putNum((uint32_t)(input_data[0]));
+	putNum((uint32_t)(input_data[1]));
+	putNum((uint32_t)(input_data[2]));
+	putNum((uint32_t)(input_data[3]));
+
+
+	putNum((uint32_t)free_mem_ptr);
+	putNum((uint32_t)free_mem_end_ptr);
+
 
 	/* currently cannot access the input_data yet */
 	//putNum((uint32_t)input_data);
 	//putNum((uint32_t)input_data_end);
 
-	putstr("Uncompressing Linux...");
+	putstr("Uncompressing Linux...\n");
+
+
+
 	ret = do_decompress(input_data, input_data_end - input_data,
 			    output_data, error);
 
-	putstr("Uncompress finished");
+
+	putstr("Uncompress finished\n");
+
 	if (ret)
 		error("decompressor returned an error");
 	else
 		putstr(" done, booting the kernel.\n");
+
 }

@@ -14,6 +14,7 @@
 #define UART_PADDR    (HX_REGS_UART_PHYS_BASE + 0x620)
 
 /*
+for implementation reference
 static void helx_serial_putc(const char c)
 {
 	int done = 0;
