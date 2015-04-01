@@ -19,6 +19,13 @@
  * 100% relocatable.  Any attempt to do so will result in a crash.
  * Please select one of the following when turning on debugging.
  */
+
+#define HELIOSX_DRAM_REGION_BASE   (CONFIG_HELIOSX_DRAM_REGION_BASE)
+
+#define HELIOSX_ZRELADDR   (HELIOSX_DRAM_REGION_BASE + 0x0A000000)
+#define HELIOSX_DRAM_START (HELIOSX_DRAM_REGION_BASE + 0x08000000)
+#define HELIOSX_DRAM_END   (HELIOSX_DRAM_REGION_BASE + 0x10000000)
+
 #ifdef DEBUG
 
 #if defined(CONFIG_DEBUG_ICEDCC)
@@ -167,13 +174,14 @@ not_angel:
 
 		.text
 
-#ifdef CONFIG_AUTO_ZRELADDR
+#ifdef HELIOSX_ZRELADDR
+		/* xgu hack */
+		ldr	r4, =HELIOSX_ZRELADDR
+#elif CONFIG_AUTO_ZRELADDR
 		@ determine final kernel image address
 		mov	r4, pc
 		and	r4, r4, #0xf8000000
 		add	r4, r4, #TEXT_OFFSET
-		/* xgu hack */
-		ldr	r4, =0x1a000000
 #else
 		ldr	r4, =zreladdr
 #endif
@@ -190,9 +198,6 @@ not_angel:
 		addcc	r0, r0, pc
 		cmpcc	r4, r0
 		orrcc	r4, r4, #1		@ remember we skipped cache_on
-		/*
-		 * xgu hack, cache mmu setting break things,
-		 * some memory cannot read write */
 		blcs	cache_on
 
 restart:	adr	r0, LC0
@@ -656,21 +661,16 @@ __armv3_mpu_cache_on:
 #endif
 
 
-/*
-__setup_mmu:	sub	r3, r4, #16384		@ Page directory size
-		bic	r3, r3, #0xff		@ Align the pointer
-		bic	r3, r3, #0x3f00
-*/
-
-/* xgu hack, just set MMU to map all the RAM between 0x08000000 - 0x10000000
+/* xgu hack, just set MMU to map all the RAM between 0x18000000 - 0x20000000
  *   everything is hardcoded
- *   r4 = 0x0a000000
- *   r3 = 0x09f00000
+ *   r4 = 0x1a000000
+ *   r3 = 0x19f00000
  */
-__setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
+__setup_mmu_heliosx:
+		sub	r3, r4, #0x00100000	@ 1M for Page directory
 		mov	r0, r3			@ table of index
-		mov	r9,  #0x18000000	@ start of RAM
-		mov 	r10, #0x20000000	@ end of RAM
+		mov	r9,  #HELIOSX_DRAM_START	@ start of RAM
+		mov 	r10, #HELIOSX_DRAM_END		@ end of RAM
 		mov	r1, #0x12		@ section mapping
 		orr	r1, r1, #3 << 10	@ AP=11
 		add	r2, r3, #16384		@ r2 points to end of the table
@@ -678,12 +678,7 @@ __setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
 		cmphs	r10, r1			@   && end of RAM > virt
 		bic	r1, r1, #0x1c		@ clear XN|U + C + B
 		orrlo	r1, r1, #0x10		@ Set XN|U for non-RAM
-
-		@orrhs	r1, r1, r6		@ set RAM section settings
-        	orrhs   r1,r1,#0b0000000001100     @ Set CB bits
-	        orrhs   r1,r1,#0b0000000000000     @ Set TEX bit 12
-
-
+		orrhs	r1, r1, r6		@ set CB bit, r6 == 0x0E
 		str	r1, [r0], #4		@ 1:1 mapping
 		add	r1, r1, #1048576
 		teq	r0, r2
@@ -691,11 +686,15 @@ __setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
 
 		mov 	pc, lr
 
+
+
+__setup_mmu:	sub	r3, r4, #16384		@ Page directory size
+		bic	r3, r3, #0xff		@ Align the pointer
+		bic	r3, r3, #0x3f00
 /*
  * Initialise the page tables, turning on the cacheable and bufferable
  * bits for the RAM area only.
  */
- /*
 		mov	r0, r3
 		mov	r9, r0, lsr #18
 		mov	r9, r9, lsl #18		@ start of RAM
@@ -712,15 +711,12 @@ __setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
 		add	r1, r1, #1048576
 		teq	r0, r2
 		bne	1b
-*/
-
 /*
  * If ever we are running from Flash, then we surely want the cache
  * to be enabled also for our execution instance...  We map 2MB of it
  * so there is no map overlap problem for up to 1 MB compressed kernel.
  * If the execution is in RAM then we would only be duplicating the above.
  */
- /*
 		orr	r1, r6, #0x04		@ ensure B is set for this
 		orr	r1, r1, #3 << 10
 		mov	r2, pc
@@ -731,7 +727,6 @@ __setup_mmu:	sub	r3, r4, #0x00100000	@ 1M for Page directory
 		add	r1, r1, #1048576
 		str	r1, [r0]
 		mov	pc, lr
-*/
 ENDPROC(__setup_mmu)
 
 @ Enable unaligned access on v6, to allow better code generation
@@ -773,7 +768,9 @@ __armv7_mmu_cache_on:
 		mrc	p15, 0, r11, c0, c1, 4	@ read ID_MMFR0
 		tst	r11, #0xf		@ VMSA
 		movne	r6, #CB_BITS | 0x02	@ !XN
-		blne	__setup_mmu
+		/* xgu hack, for heliosx*/
+		@blne	__setup_mmu
+		blne	__setup_mmu_heliosx
 		mov	r0, #0
 		mcr	p15, 0, r0, c7, c10, 4	@ drain write buffer
 		tst	r11, #0xf		@ VMSA

@@ -10,4 +10,9 @@ menuconfig ARCH_HELIOSX
 	help
 	  I cannot help you man, even I do not know how to port to HeliosX.
 
+config HELIOSX_DRAM_REGION_BASE
+	hex "Region base"
+	help
+	  Region base
+
 
