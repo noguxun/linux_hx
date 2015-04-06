@@ -1051,11 +1051,6 @@ choice
 		  Note that the system will appear to hang during boot if there
 		  is nothing connected to read from the DCC.
 
-	config DEBUG_LL_UART_HELIOSX
-		bool "low-level debugging via heliosx Uart"
-		help
-		  contact guxun@marvell.com
-
 
 	config DEBUG_SEMIHOSTING
 		bool "Kernel low-level debug output via semihosting I/O"
