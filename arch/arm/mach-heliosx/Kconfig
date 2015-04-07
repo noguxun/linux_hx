@@ -15,4 +15,8 @@ config HELIOSX_DRAM_REGION_BASE
 	help
 	  Region base
 
-
+config MACH_HELIOSX
+	bool "Heliosx"
+	depends on ARCH_HELIOSX
+	help
+	  HeliosX

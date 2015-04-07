@@ -3,6 +3,7 @@
 #include <linux/init.h>
 #include <asm/pgtable.h>
 #include <asm/mach/map.h>
+#include <asm/mach-types.h>
 
 #include "heliosx.h"
 
@@ -27,7 +28,6 @@ void __init hx_map_io(void)
 	iotable_init(hx_io_desc, ARRAY_SIZE(hx_io_desc));
 }
 
-DT_MACHINE_START(HELIOSX_DT, "HeliosX")
+MACHINE_START(HELIOSX, "HeliosX")
 	.map_io 	= hx_map_io,
-	.dt_compat	= hx_dt_match,
 MACHINE_END
