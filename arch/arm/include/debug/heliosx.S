@@ -6,12 +6,12 @@
  */
 
 
-#define HX_REGS_UART_PHYS_BASE     0xD000A000
-#define HX_REGS_UART_VIRT_BASE     IOMEM(0xFEB00000)
-#define HX_REGS_UART_SIZE          0x1000
+#define HX_REGS_UART_PHYS_BASE     0xD0000000
+#define HX_REGS_UART_VIRT_BASE     IOMEM(0xFEC00000)
+#define HX_REGS_UART_SIZE          (0xA000 + 0x1000)
 
-#define UART_VADDR    (HX_REGS_UART_VIRT_BASE + 0x620)
-#define UART_PADDR    (HX_REGS_UART_PHYS_BASE + 0x620)
+#define UART_VADDR    (HX_REGS_UART_VIRT_BASE + 0xA620)
+#define UART_PADDR    (HX_REGS_UART_PHYS_BASE + 0xA620)
 
 /*
 for implementation reference

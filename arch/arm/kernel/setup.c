@@ -901,11 +901,16 @@ void __init setup_arch(char **cmdline_p)
 
 	setup_processor();
 	mdesc = setup_machine_fdt(__atags_pointer);
+
+	early_print("xgu setup_arch \n");
+
 	if (!mdesc)
 		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);
 	machine_desc = mdesc;
 	machine_name = mdesc->name;
 	dump_stack_set_arch_desc("%s", mdesc->name);
+
+	early_print("xgu setup_arch lable1 \n");
 
 	if (mdesc->reboot_mode != REBOOT_HARD)
 		reboot_mode = mdesc->reboot_mode;
@@ -929,10 +934,14 @@ void __init setup_arch(char **cmdline_p)
 	paging_init(mdesc);
 	request_standard_resources(mdesc);
 
+	early_print("xgu setup_arch lable2 \n");
+
 	if (mdesc->restart)
 		arm_pm_restart = mdesc->restart;
 
 	unflatten_device_tree();
+
+	early_print("xgu setup_arch lable3 \n");
 
 	arm_dt_init_cpu_maps();
 	psci_init();
@@ -968,6 +977,8 @@ void __init setup_arch(char **cmdline_p)
 
 	if (mdesc->init_early)
 		mdesc->init_early();
+
+	early_print("xgu setup_arch lable 9 \n");
 }
 
 

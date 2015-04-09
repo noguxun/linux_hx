@@ -25,7 +25,8 @@ static struct map_desc hx_io_desc[] __initdata = {
 
 void __init hx_map_io(void)
 {
-	iotable_init(hx_io_desc, ARRAY_SIZE(hx_io_desc));
+	/* iotable_init(hx_io_desc, ARRAY_SIZE(hx_io_desc)); */
+	/* Nothing to map here */
 }
 
 MACHINE_START(HELIOSX, "HeliosX")
