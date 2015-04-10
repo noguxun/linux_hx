@@ -22,11 +22,16 @@
 
 #define HELIOSX_DRAM_REGION_BASE   (CONFIG_HELIOSX_DRAM_REGION_BASE)
 
-#define HELIOSX_DRAM_SIZE  (0x08000000)  //128M
+#define HELIOSX_DRAM_SIZE  (0x08000000)  // 128M
 #define HELIOSX_DRAM_START (HELIOSX_DRAM_REGION_BASE + 0x08000000)
 #define HELIOSX_DRAM_END   (HELIOSX_DRAM_START + HELIOSX_DRAM_SIZE)
 #define HELIOSX_ZRELADDR   (HELIOSX_DRAM_START + TEXT_OFFSET)
-/*#define HELIOSX_ZRELADDR   (HELIOSX_DRAM_START + 0x02000000) */
+
+#define HELIOSX_SPM_SIZE   (1024 * 16)   // 16K
+#define HELIOSX_SPM_START  (0xEFFF0000)
+#define HELIOSX_SPM_END    (HELIOSX_SPM_START + HELIOSX_SPM_SIZE)
+
+
 
 #ifdef DEBUG
 
@@ -522,8 +527,13 @@ not_relocated:	mov	r0, #0
  *   r8  = atags pointer
  */
 		mov	r0, r4
+
 		mov	r1, sp			@ malloc space above stack
 		add	r2, sp, #0x10000	@ 64k max
+
+/* Due to DRAM bug, force sp to be on SPM */
+	  	ldr	sp, =0xEFFF2000		@ 8k for stack, on SPM
+
 		mov	r3, r7
 		bl	decompress_kernel
 		bl	cache_clean_flush
