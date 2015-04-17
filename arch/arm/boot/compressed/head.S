@@ -27,9 +27,6 @@
 #define HELIOSX_DRAM_END   (HELIOSX_DRAM_START + HELIOSX_DRAM_SIZE)
 #define HELIOSX_ZRELADDR   (HELIOSX_DRAM_START + TEXT_OFFSET)
 
-#define HELIOSX_SPM_SIZE   (1024 * 16)   // 16K
-#define HELIOSX_SPM_START  (0xEFFF0000)
-#define HELIOSX_SPM_END    (HELIOSX_SPM_START + HELIOSX_SPM_SIZE)
 
 
 
@@ -679,7 +676,9 @@ __armv3_mpu_cache_on:
  *   r3 = 0x19f00000
  */
 __setup_mmu_heliosx:
-		sub	r3, r4, #0x00100000	@ 1M for Page directory
+		@sub	r3, r4, #0x00100000	@ 1M for Page directory, to place 170000, not ok
+		mov	r3, #0x1b000000		@ hard code to a place
+
 		mov	r0, r3			@ table of index
 		mov	r9,  #HELIOSX_DRAM_START	@ start of RAM
 		mov 	r10, #HELIOSX_DRAM_END		@ end of RAM
@@ -791,6 +790,7 @@ __armv7_mmu_cache_on:
 		mrc	p15, 0, r0, c1, c0, 0	@ read control reg
 		bic	r0, r0, #1 << 28	@ clear SCTLR.TRE
 		orr	r0, r0, #0x5000		@ I-cache enable, RR cache replacement
+		bic	r0, r0, #0x1000		@ Disable I-cache enable
 		orr	r0, r0, #0x003c		@ write buffer
 		bic	r0, r0, #2		@ A (no unaligned access fault)
 		orr	r0, r0, #1 << 22	@ U (v6 unaligned access model)
@@ -1166,7 +1166,7 @@ __armv7_mmu_cache_flush:
 		b	iflush
 hierarchical:
 		mcr	p15, 0, r10, c7, c10, 5	@ DMB
-		stmfd	sp!, {r0-r7, r9-r11}
+		stmfd	sp!, {r0-r7, r9-r11}    @ stack issue
 		mrc	p15, 1, r0, c0, c0, 1	@ read clidr
 		ands	r3, r0, #0x7000000	@ extract loc from clidr
 		mov	r3, r3, lsr #23		@ left align loc bit field
@@ -1207,7 +1207,8 @@ skip:
 		cmp	r3, r10
 		bgt	loop1
 finished:
-		ldmfd	sp!, {r0-r7, r9-r11}
+
+		ldmfd	sp!, {r0-r7, r9-r11}    @ stack issue
 		mov	r10, #0			@ swith back to cache level 0
 		mcr	p15, 2, r10, c0, c0, 0	@ select current cache level in cssr
 iflush:

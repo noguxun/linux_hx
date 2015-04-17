@@ -18,9 +18,10 @@ make all -j9
 #make -j9 LOADADDR=0x40008000 uImage
 
 
-echo "Uploading zImage to Windows"
-curl -T arch/arm/boot/zImage ftp://10.27.112.204 --user xgu:1234567
+#echo "Uploading zImage to Windows"
+#curl -T arch/arm/boot/zImage ftp://10.27.112.204 --user xgu:1234567
 
+cp arch/arm/boot/zImage zImage.bin
 #cp arch/arm/boot/uImage uImage.bin
 #cp arch/arm/boot/dts/heliosx.dtb heliosx.dtb.bin
 

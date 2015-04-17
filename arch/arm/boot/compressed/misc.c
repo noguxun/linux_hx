@@ -83,6 +83,7 @@ static void icedcc_putc(int ch)
 #define putc(ch)	icedcc_putc(ch)
 #endif
 
+
 static void putstr(const char *ptr)
 {
 	char c;
@@ -140,16 +141,12 @@ unsigned long free_mem_end_ptr;
 #define arch_error(x)
 #endif
 
+
 void error(char *x)
 {
 	arch_error(x);
 
 	putstr("\n\n");
-	putstr(x);
-
-	//xgu
-	putstr("\n\n -- System halted");
-
 	while(1);	/* Halt */
 }
 
@@ -189,8 +186,6 @@ decompress_kernel(unsigned long output_start, unsigned long free_mem_ptr_p,
 
 	arch_decomp_setup();
 
-	/*xgu hack*/
-	//output_data = (unsigned char *)0x0a000000;
 
 	putstr("I am Linux and I am on the HeliosX\n");
 
@@ -208,10 +203,7 @@ decompress_kernel(unsigned long output_start, unsigned long free_mem_ptr_p,
 	putNum((uint32_t)free_mem_end_ptr);
 
 
-	/* currently cannot access the input_data yet */
-	//putNum((uint32_t)input_data);
-	//putNum((uint32_t)input_data_end);
-
+	putstr("---------------------------------------------------------------\n");
 	putstr("Uncompressing Linux...\n");
 
 
@@ -220,11 +212,11 @@ decompress_kernel(unsigned long output_start, unsigned long free_mem_ptr_p,
 			    output_data, error);
 
 
-	putstr("Uncompress finished\n");
 
-	if (ret)
+	if (ret) {
 		error("decompressor returned an error");
-	else
-		putstr(" done, booting the kernel.\n");
-
+	}
+	else {
+	 	putstr(" done, booting the kernel.\n");
+	}
 }

@@ -167,7 +167,6 @@ STATIC int INIT gunzip(unsigned char *buf, long len,
 		/* add + 8 to skip over trailer */
 		*pos = strm->next_in - zbuf+8;
 
-
 gunzip_5:
 	free(strm->workspace);
 gunzip_nomem4:
